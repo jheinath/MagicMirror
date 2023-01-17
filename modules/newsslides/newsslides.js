@@ -5,18 +5,42 @@
  * MIT Licensed.
  */
 Module.register("newsslides", {
-	// Default module config.
 	defaults: {
-		text: "Hallo Lena!"
+		width: "100%",
+		height: "inherit",
+		refresh_interval_sec: 0,
+		content: "There is nothing to display. <br>Put your HTML code into content field in 'config.js'.",
+		file: "",
 	},
 
-	getTemplate: function () {
-		return "newsslides.njk";
+	start: function() {
+		this.timer = null
 	},
 
-	getTemplateData: function () {
-		return this.config;
-	}
+	notificationReceived: function(noti, payload, sender) {
+		if (noti == "DOM_OBJECTS_CREATED") {
+			this.refresh()
+		}
+	},
+
+	refresh: function() {
+		this.updateDom()
+		if (this.config.refresh_interval_sec > 0) {
+			var self = this
+			this.timer = setTimeout(function(){
+				self.refresh()
+			}, this.config.refresh_interval_sec * 1000)
+		}
+	},
+
+	getDom: function() {
+		var wrapper = document.createElement("div")
+		wrapper.innerHTML = this.config.content
+		wrapper.className = "HTMLBX"
+		wrapper.style.width = this.config.width
+		wrapper.style.height = this.config.height
+		return wrapper
+	},
 });
 
 
